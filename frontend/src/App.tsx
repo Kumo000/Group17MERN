@@ -1,21 +1,22 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import LoginPage from "./pages/LoginPage";
-import ApplicantDashboard from "./pages/ApplicantDashboard";
-import EmployerDashboard from "./pages/EmployerDashboard";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import LandingPage from "./pages/LandingPage";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import ProfilePage from "./pages/ProfilePage";
+import JobSearchPage from "./pages/JobSearchPage";
 
 function App() {
   return (
-    <BrowserRouter>
+    <Router>
       <Routes>
-        {/* This is your landing page */}
-        <Route path="/" element={<LoginPage />} />
-
-        {/* Other pages */}
-        <Route path="/applicant" element={<ApplicantDashboard />} />
-        <Route path="/employer" element={<EmployerDashboard />} />
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/jobs" element={<JobSearchPage />} />
       </Routes>
-    </BrowserRouter>
+    </Router>
   );
 }
 
-export default App;
+export default App
