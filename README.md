@@ -1,7 +1,6 @@
 # Group17MERN
 This is the Project repo for Group 17's MERN stack Job Portal
 
-
                         A S C E N T
 
                         
