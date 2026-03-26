@@ -9,34 +9,34 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState("");
 
   const handleLogin = async () => {
-  try {
-    const response = await fetch("http://localhost:5001/api/users/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password }),
-    });
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/users/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-    console.log("STATUS:", response.status);
+      console.log("STATUS:", response.status);
 
-    const text = await response.text(); 
-    console.log("RAW RESPONSE:", text);
+      const text = await response.text();
+      console.log("RAW RESPONSE:", text);
 
-    const data = JSON.parse(text); // manually parse
+      const data = JSON.parse(text); // manually parse
 
-    if (response.ok) {
-      console.log("Login successful:", data.user);
-      localStorage.setItem("user", JSON.stringify(data.user));
-      navigate("/dashboard");
-    } else {
-      alert("Login failed: " + data.message);
+      if (response.ok) {
+        console.log("Login successful:", data.user);
+        localStorage.setItem("user", JSON.stringify(data.user));
+        navigate("/dashboard");
+      } else {
+        alert("Login failed: " + data.message);
+      }
+    } catch (error) {
+      console.error("FULL ERROR:", error);
+      alert("An error occurred. Please try again later.");
     }
-  } catch (error) {
-    console.error("FULL ERROR:", error);
-    alert("An error occurred. Please try again later.");
-  }
-};
+  };
 
   return (
     <div
@@ -152,16 +152,16 @@ const Login: React.FC = () => {
           Login
         </button>
         <h1
-        style={{
-          fontSize: "0.8rem",
-          marginBottom: "0rem",
-          textAlign: "center",
-          letterSpacing: "0.2em",
-          width: "100%",
-        }}
-      >
-        Don't have an account? 
-      </h1>
+          style={{
+            fontSize: "0.8rem",
+            marginBottom: "0rem",
+            textAlign: "center",
+            letterSpacing: "0.2em",
+            width: "100%",
+          }}
+        >
+          Don't have an account?
+        </h1>
 
         {/* Sign Up button */}
         <button

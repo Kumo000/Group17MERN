@@ -30,6 +30,7 @@ router.post("/register", async (req, res) => {
 
     await user.save();
 
+    // removed await so website does not hang
     await sendVerificationEmail(email, token);
 
     res.json({ message: "Check your email to verify your account" });

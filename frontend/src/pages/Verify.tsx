@@ -15,7 +15,7 @@ const Verify: React.FC = () => {
 
     const verifyEmail = async () => {
       try {
-        const res = await fetch(`http://localhost:5001/api/users/verify?token=${token}`);
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/users/verify?token=${token}`);   // Vite
         const data = await res.json();
 
         if (res.ok && data.message === "Email verified!") {

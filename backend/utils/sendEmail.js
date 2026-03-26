@@ -1,32 +1,28 @@
-const nodemailer = require("nodemailer");
+const sgMail = require("@sendgrid/mail");
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: "ascent.careers.emailer@gmail.com",        // your app email
-    pass: "nmvv jawl ksfa trlc",        // Gmail app password
-  },
-});
+console.log("SendGrid Key in sendEmail.js:", process.env.SENDGRID_API_KEY);
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY.trim());
 
 const sendVerificationEmail = async (toEmail, token) => {
-  const url = `http://localhost:5173/verify?token=${token}`;
+  const url = `http://miniapp4331.com/verify?token=${token}`;
+
+  const msg = {
+    to: toEmail,
+    from: "ascent.careers.emailer@gmail.com", // must be verified in SendGrid
+    subject: "Verify your account",
+    html: `
+      <h2>Email Verification</h2>
+      <p>Click the link below:</p>
+      <a href="${url}">${url}</a>
+    `,
+  };
 
   try {
-    await transporter.sendMail({
-      from: "ascent.careers.emailer@gmail.com", //must match authenticated Gmail
-      to: toEmail,
-      subject: "Verify your account",
-      html: `
-        <h2>Email Verification</h2>
-        <p>Click the link below:</p>
-        <a href="${url}">${url}</a>
-      `,
-    });
+    await sgMail.send(msg);
     console.log("Verification email sent to", toEmail);
-  } catch (err) {
-    console.error("Failed to send verification email:", err.message);
-    // Optionally: don’t throw, just warn
-    // throw err;
+  } catch (error) {
+    console.error("Error sending email:", error);
   }
 };
 

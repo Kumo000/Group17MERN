@@ -12,42 +12,42 @@ const Signup: React.FC = () => {
   const [role, setRole] = useState("");
 
   const handleRegister = async () => {
-  try {
-    const response = await fetch("http://localhost:5001/api/users/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        firstname,
-        lastname,
-        email,
-        password,
-        role, // e.g., "employee" or "employer"
-      }),
-    });
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/users/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          firstname,
+          lastname,
+          email,
+          password,
+          role, // e.g., "employee" or "employer"
+        }),
+      });
 
-    console.log("STATUS:", response.status);
+      console.log("STATUS:", response.status);
 
-    const text = await response.text();
-    console.log("RAW RESPONSE:", text);
+      const text = await response.text();
+      console.log("RAW RESPONSE:", text);
 
-    const data = JSON.parse(text);
+      const data = JSON.parse(text);
 
-    if (response.ok) {
-      // Successful registration
-      alert(data.message); // "Check your email to verify your account"
-      // Optionally navigate to login page
-      navigate("/");
-    } else {
-      // Registration failed (user exists, etc.)
-      alert("Registration failed: " + data.message);
+      if (response.ok) {
+        // Successful registration
+        alert(data.message); // "Check your email to verify your account"
+        // Optionally navigate to login page
+        navigate("/");
+      } else {
+        // Registration failed (user exists, etc.)
+        alert("Registration failed: " + data.message);
+      }
+    } catch (error) {
+      console.error("FULL ERROR:", error);
+      alert("An error occurred. Please try again later.");
     }
-  } catch (error) {
-    console.error("FULL ERROR:", error);
-    alert("An error occurred. Please try again later.");
-  }
-};
+  };
 
   return (
     <div
@@ -211,16 +211,16 @@ const Signup: React.FC = () => {
           Signup
         </button>
         <h1
-        style={{
-          fontSize: "0.8rem",
-          marginBottom: "0rem",
-          textAlign: "center",
-          letterSpacing: "0.2em",
-          width: "100%",
-        }}
-      >
-        It's time to climb 
-      </h1>
+          style={{
+            fontSize: "0.8rem",
+            marginBottom: "0rem",
+            textAlign: "center",
+            letterSpacing: "0.2em",
+            width: "100%",
+          }}
+        >
+          It's time to climb
+        </h1>
 
       </div>
 
