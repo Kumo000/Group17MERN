@@ -1,8 +1,7 @@
-// src/pages/Verify.tsx
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 
-/*function VerifyPage() {
+const Verify: React.FC = () => {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const [status, setStatus] = useState("Verifying...");
@@ -14,30 +13,45 @@ import { useSearchParams, useNavigate } from "react-router-dom";
       return;
     }
 
-    fetch(`/api/users/verify?token=${token}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.message === "Email verified!") {
+    const verifyEmail = async () => {
+      try {
+        const res = await fetch(`http://localhost:5001/api/users/verify?token=${token}`);
+        const data = await res.json();
+
+        if (res.ok && data.message === "Email verified!") {
           setStatus("Email verified! You can now log in.");
         } else {
-          setStatus("Verification failed: " + data.message);
+          setStatus("Verification failed: " + (data.message || "Unknown error"));
         }
-      })
-      .catch(() => setStatus("Server error during verification"));
+      } catch (err) {
+        setStatus("Server error during verification");
+        console.error("Verification error:", err);
+      }
+    };
+
+    verifyEmail();
   }, [params]);
 
   return (
     <div style={{ padding: "3rem", textAlign: "center" }}>
       <h1>{status}</h1>
       {status === "Email verified! You can now log in." && (
-        <button onClick={() => navigate("/login")}>Go to Login</button>
+        <button
+          style={{
+            marginTop: "1rem",
+            padding: "0.5rem 1rem",
+            fontSize: "1rem",
+            borderRadius: "8px",
+            border: "1px solid #ccc",
+            cursor: "pointer",
+          }}
+          onClick={() => navigate("/")}
+        >
+          Go to Login
+        </button>
       )}
     </div>
   );
-}
-*/
-const Verify: React.FC = () => {
-  return <h1>Verify Page</h1>;
 };
 
 export default Verify;
