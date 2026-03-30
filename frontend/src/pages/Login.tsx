@@ -9,34 +9,47 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState("");
 
   const handleLogin = async () => {
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/users/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
+  try {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/users/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    });
 
-      console.log("STATUS:", response.status);
+    const data = await response.json(); // parse JSON directly
 
-      const text = await response.text();
-      console.log("RAW RESPONSE:", text);
-
-      const data = JSON.parse(text); // manually parse
-
-      if (response.ok) {
-        console.log("Login successful:", data.user);
-        localStorage.setItem("user", JSON.stringify(data.user));
-        navigate("/dashboard");
-      } else {
-        alert("Login failed: " + data.message);
-      }
-    } catch (error) {
-      console.error("FULL ERROR:", error);
-      alert("An error occurred. Please try again later.");
+    if (!response.ok) {
+      alert("Login failed: " + data.message);
+      return;
     }
-  };
+
+    console.log("Login successful:", data.user);
+
+    // Save token & initial user info
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("user", JSON.stringify(data.user));
+
+    // Optional: fetch latest user info from /me
+    const token = data.token;
+    const meRes = await fetch(`${import.meta.env.VITE_API_URL}/api/users/me`, {
+      headers: { Authorization: token },
+    });
+    const meData = await meRes.json();
+    localStorage.setItem("user", JSON.stringify(meData));
+
+    // Redirect based on role
+    if (meData.role === "Employer") {
+      navigate("/employerProfile");
+    } else {
+      navigate("/applicantProfile");
+    } 
+  } catch (error) {
+    console.error("Login error:", error);
+    alert("An error occurred. Please try again later.");
+  }
+};
 
   return (
     <div

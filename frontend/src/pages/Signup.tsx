@@ -6,6 +6,7 @@ const Signup: React.FC = () => {
 
   // State for text fields
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [firstname, setFirstName] = useState("");
   const [lastname, setLastName] = useState("");
   const [password, setPassword] = useState("");
@@ -150,6 +151,20 @@ const Signup: React.FC = () => {
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          style={{
+            padding: "0.6rem 1rem",
+            fontSize: "1rem",
+            borderRadius: "8px",
+            border: "1px solid #ccc",
+            width: "250px",
+          }}
+        />
+        {/* phone field */}
+        <input
+          type="text"
+          placeholder="Phone"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
           style={{
             padding: "0.6rem 1rem",
             fontSize: "1rem",

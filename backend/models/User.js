@@ -5,10 +5,15 @@ const userSchema = new mongoose.Schema({
   lastName: String,
   email: { type: String, unique: true },
   password: String,
+
   role: {
     type: String,
     enum: ["Applicant", "Employer"],
   },
+
+  phone: String,
+  degrees: [String],
+  skills: [String],
 
   isVerified: { type: Boolean, default: false },
   verificationToken: String,
