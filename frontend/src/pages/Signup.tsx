@@ -23,6 +23,7 @@ const Signup: React.FC = () => {
           firstname,
           lastname,
           email,
+	  phone,
           password,
           role, // e.g., "employee" or "employer"
         }),

@@ -13,7 +13,7 @@ const auth = require("../middleware/auth"); // your existing JWT middleware
 // ------------------------
 router.post("/register", async (req, res) => {
   try {
-    const { firstName, lastName, email, phone, password, role } = req.body;
+    const { firstname, lastname, email, phone, password, role } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -26,8 +26,8 @@ router.post("/register", async (req, res) => {
     const verificationToken = crypto.randomBytes(32).toString("hex");
 
     const user = new User({
-      firstName,
-      lastName,
+      firstname,
+      lastname,
       email,
       phone,
       password: hashedPassword,
@@ -119,13 +119,14 @@ router.put("/update", auth, async (req, res) => {
   try {
     const updates = {};
     const allowedFields = [
-      "firstName",
-      "lastName",
+      "firstname",
+      "lastname",
       "email",
       "phone",
       "role",
       "degrees",
       "skills",
+      "experience",
       "password"
     ];
 
