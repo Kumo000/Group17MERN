@@ -6,6 +6,7 @@ const cors = require("cors");
 
 
 const userRoutes = require("./routes/userRoutes");
+const jobRoutes = require("./routes/jobRoutes");
 
 const app = express();
 
@@ -28,6 +29,7 @@ app.options('/api/users/login', (req, res) => {
 
 // Routes
 app.use("/api/users", userRoutes);
+app.use("/api/jobs", jobRoutes);
 
 // Debug preflight requests
 app.options(/.*/, (req, res) => {
