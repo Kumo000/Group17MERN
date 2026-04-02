@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-// Define the User type
+// ------------------ Types ------------------
 interface Degree {
   university: string;
   degree: string;
@@ -16,6 +16,7 @@ interface Experience {
 }
 
 interface User {
+  _id?: string;
   firstname: string;
   lastname: string;
   email: string;
@@ -26,14 +27,38 @@ interface User {
   skills?: string[];
 }
 
+interface ApplicationJob {
+  _id: string;
+  title: string;
+  company: string;
+  appliedAt: string;
+  status: "pending" | "rejected" | "under review";
+}
+
+// ------------------ Component ------------------
 const ApplicantProfile: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
+  const [applications, setApplications] = useState<ApplicationJob[]>([]);
   const navigate = useNavigate();
 
   // Load user from localStorage on mount
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
-    if (storedUser) setUser(JSON.parse(storedUser));
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+
+    const token = localStorage.getItem("token");
+    if (token) {
+      fetch(`${import.meta.env.VITE_API_URL}/api/jobs/my-applications`, {
+        headers: { Authorization: token },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          setApplications(data);
+        })
+        .catch((err) => console.error("Error fetching applications:", err));
+    }
   }, []);
 
   // Save updated info
@@ -104,7 +129,7 @@ const ApplicantProfile: React.FC = () => {
         }}
       />
 
-      {/* Header with Logout */}
+      {/* Header */}
       <div
         style={{
           width: "90%",
@@ -132,7 +157,7 @@ const ApplicantProfile: React.FC = () => {
         </button>
       </div>
 
-      {/* Main two-column layout */}
+      {/* Main layout: Left, Right, and Applications */}
       <div
         style={{
           display: "flex",
@@ -149,7 +174,7 @@ const ApplicantProfile: React.FC = () => {
             backgroundColor: "rgba(255, 255, 255, 0.85)",
             padding: "2rem",
             borderRadius: "16px",
-            width: "320px",
+            width: "300px",
             display: "flex",
             flexDirection: "column",
             gap: "1rem",
@@ -183,7 +208,7 @@ const ApplicantProfile: React.FC = () => {
           </div>
         </div>
 
-        {/* Right Column: Degrees, Experience, Skills */}
+        {/* Middle Column: Degrees, Experience, Skills */}
         <div
           style={{
             backgroundColor: "rgba(240, 240, 240, 0.95)",
@@ -242,7 +267,13 @@ const ApplicantProfile: React.FC = () => {
                   const newDegrees = user.degrees!.filter((_, i) => i !== idx);
                   setUser({ ...user, degrees: newDegrees });
                 }}
-                style={{ backgroundColor: "#f44336", color: "white", border: "none", borderRadius: "5px", cursor: "pointer" }}
+                style={{
+                  backgroundColor: "#f44336",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "5px",
+                  cursor: "pointer",
+                }}
               >
                 Remove Degree
               </button>
@@ -254,7 +285,14 @@ const ApplicantProfile: React.FC = () => {
               newDegrees.push({ university: "", degree: "", major: "" });
               setUser({ ...user, degrees: newDegrees });
             }}
-            style={{ backgroundColor: "#4CAF50", color: "white", border: "none", borderRadius: "8px", cursor: "pointer", padding: "0.5rem" }}
+            style={{
+              backgroundColor: "#4CAF50",
+              color: "white",
+              border: "none",
+              borderRadius: "8px",
+              cursor: "pointer",
+              padding: "0.5rem",
+            }}
           >
             Add Degree
           </button>
@@ -316,7 +354,13 @@ const ApplicantProfile: React.FC = () => {
                   const newExp = user.experience!.filter((_, i) => i !== idx);
                   setUser({ ...user, experience: newExp });
                 }}
-                style={{ backgroundColor: "#f44336", color: "white", border: "none", borderRadius: "5px", cursor: "pointer" }}
+                style={{
+                  backgroundColor: "#f44336",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "5px",
+                  cursor: "pointer",
+                }}
               >
                 Remove Experience
               </button>
@@ -328,7 +372,14 @@ const ApplicantProfile: React.FC = () => {
               newExp.push({ title: "", startDate: "", endDate: "", description: "" });
               setUser({ ...user, experience: newExp });
             }}
-            style={{ backgroundColor: "#4CAF50", color: "white", border: "none", borderRadius: "8px", cursor: "pointer", padding: "0.5rem" }}
+            style={{
+              backgroundColor: "#4CAF50",
+              color: "white",
+              border: "none",
+              borderRadius: "8px",
+              cursor: "pointer",
+              padding: "0.5rem",
+            }}
           >
             Add Experience
           </button>
@@ -365,6 +416,44 @@ const ApplicantProfile: React.FC = () => {
           >
             Save Profile
           </button>
+        </div>
+
+        {/* Right Column: My Applications */}
+        <div
+          style={{
+            backgroundColor: "rgba(255, 255, 255, 0.85)",
+            padding: "2rem",
+            borderRadius: "16px",
+            width: "350px",
+            display: "flex",
+            flexDirection: "column",
+            gap: "1rem",
+          }}
+        >
+          <h2 style={{ marginBottom: "1rem", color: "#333" }}>My Applications</h2>
+
+          {applications.length === 0 ? (
+            <div>No Pending Applications</div>
+          ) : (
+            applications.map((app) => (
+              <div
+                key={app._id}
+                style={{
+                  border: "1px solid #ccc",
+                  padding: "0.75rem",
+                  borderRadius: "8px",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "0.25rem",
+                }}
+              >
+                <div style={{ fontWeight: 600 }}>{app.title}</div>
+                <div>Company: {app.company}</div>
+                <div>Date Applied: {new Date(app.appliedAt).toLocaleDateString()}</div>
+                <div>Status: <strong>{app.status}</strong></div>
+              </div>
+            ))
+          )}
         </div>
       </div>
 
