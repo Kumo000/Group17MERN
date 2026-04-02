@@ -58,4 +58,27 @@ router.delete("/deleteJob/:id", auth, async (req, res) => {
     }
 });
 
+// ------------------------
+// SEARCH JOBS
+// ------------------------
+router.post("/searchJobs", auth, async (req, res) => {
+    try {
+        const { title, company } = req.body;
+
+        // make filter
+        const filter = {};
+        filter.title = { $regex: title, $options: "i" };
+        filter.company = { $regex: company, $options: "i" };
+        
+        // search with filter
+        const jobs = await Job.find(filter).populate("createdBy", "firstname lastname email");
+
+        res.json(jobs);
+    }
+    catch (err) {
+        console.error("SEARCH JOBS ERROR:", err);
+        res.status(500).json(err);
+    }
+});
+
 module.exports = router;
