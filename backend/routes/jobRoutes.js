@@ -1,12 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const crypto = require("crypto");
 
 const Job = require("../models/Job");
 const User = require("../models/User");
 const auth = require("../middleware/auth");
-const sendInterviewEmail = require("../utils/sendInterviewEmail");
-const sendEmployerNotificationEmail = require("../utils/sendEmployerNotificationEmail");
 
 // ------------------------
 // POST JOB
@@ -177,112 +174,46 @@ router.put("/updateApplicantStatus/:jobId/:applicantSubdocId", auth, async (req,
 
 // ------------------------
 // REQUEST INTERVIEW
-// Sends email to applicant with accept/reject links
+// Simply sets applicant status to "interview requested" — no email sent
 // POST /api/jobs/requestInterview/:jobId/:applicantSubdocId
 // ------------------------
 router.post("/requestInterview/:jobId/:applicantSubdocId", auth, async (req, res) => {
     try {
-        const job = await Job.findById(req.params.jobId).populate("applicants.user");
+        const job = await Job.findById(req.params.jobId);
         if (!job) return res.status(404).json({ message: "Job not found" });
         if (job.createdBy.toString() !== req.user.id) return res.status(403).json({ message: "Unauthorized" });
 
         const applicantDoc = job.applicants.id(req.params.applicantSubdocId);
         if (!applicantDoc) return res.status(404).json({ message: "Applicant not found" });
 
-        // Generate a unique one-time token
-        const token = crypto.randomBytes(32).toString("hex");
-        applicantDoc.interviewToken = token;
-        applicantDoc.status = "under review"; // stays under review until they respond
+        applicantDoc.status = "interview requested";
         await job.save();
 
-        // Get applicant's user info for the email
-        const applicantUser = applicantDoc.user;
-
-        await sendInterviewEmail(
-            applicantUser.email,
-            applicantUser.firstname,
-            job.title,
-            job.company,
-            token
-        );
-
-        res.json({ message: "Interview request sent" });
+        res.json({ message: "Interview requested", applicant: applicantDoc });
     } catch (err) {
         console.error("REQUEST INTERVIEW ERROR:", err);
         res.status(500).json({ message: "Server error", error: err.message });
     }
 });
 
+
+
 // ------------------------
-// APPLICANT RESPONDS TO INTERVIEW (via email link — no auth, token-based)
-// GET /api/jobs/interview/respond?token=xxx&response=accept|reject
+// CLOSE JOB LISTING (without hiring)
+// PUT /api/jobs/closeJob/:id
 // ------------------------
-router.get("/interview/respond", async (req, res) => {
+router.put("/closeJob/:id", auth, async (req, res) => {
     try {
-        const { token, response } = req.query;
+        const job = await Job.findOne({ _id: req.params.id, createdBy: req.user.id });
+        if (!job) return res.status(400).json({ message: "Job or permission not found" });
 
-        if (!token || !["accept", "reject"].includes(response)) {
-            return res.status(400).send("Invalid request.");
-        }
-
-        // Find the job + applicant subdoc that has this token
-        const job = await Job.findOne({ "applicants.interviewToken": token })
-            .populate("createdBy", "firstname email")
-            .populate("applicants.user", "firstname lastname email");
-
-        if (!job) {
-            return res.status(404).send("This link has already been used or is invalid.");
-        }
-
-        const applicantDoc = job.applicants.find(a => a.interviewToken === token);
-        if (!applicantDoc) {
-            return res.status(404).send("Applicant not found.");
-        }
-
-        const applicantUser = applicantDoc.user;
-        const employer = job.createdBy;
-
-        if (response === "accept") {
-            applicantDoc.status = "interview pending";
-        } else {
-            applicantDoc.status = "rejected";
-        }
-
-        // Burn the token so the link can't be reused
-        applicantDoc.interviewToken = null;
+        job.closed = true;
         await job.save();
 
-        // Email the employer
-        await sendEmployerNotificationEmail(
-            employer.email,
-            employer.firstname,
-            `${applicantUser.firstname} ${applicantUser.lastname}`,
-            applicantUser.email,
-            job.title,
-            response
-        );
-
-        // Return a friendly HTML page to the applicant
-        const message = response === "accept"
-            ? `<h2 style="color:#2e7d32">✅ Interview Accepted!</h2><p>You have accepted the interview for <strong>${job.title}</strong> at <strong>${job.company}</strong>. The employer has been notified.</p>`
-            : `<h2 style="color:#c62828">❌ Interview Declined</h2><p>You have declined the interview for <strong>${job.title}</strong> at <strong>${job.company}</strong>.</p>`;
-
-        res.send(`
-            <!DOCTYPE html>
-            <html>
-            <head><title>Ascent — Interview Response</title></head>
-            <body style="font-family:Arial,sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;background:#f5f5f5;">
-                <div style="background:white;padding:3rem;border-radius:16px;text-align:center;max-width:480px;box-shadow:0 4px 20px rgba(0,0,0,0.08);">
-                    <h1 style="color:#321e5a;letter-spacing:0.3em;">ASCENT</h1>
-                    ${message}
-                    <p style="color:#aaa;font-size:0.85rem;margin-top:2rem;">You may close this window.</p>
-                </div>
-            </body>
-            </html>
-        `);
+        res.json({ message: "Listing closed", job });
     } catch (err) {
-        console.error("INTERVIEW RESPOND ERROR:", err);
-        res.status(500).send("An error occurred. Please try again.");
+        console.error("CLOSE JOB ERROR:", err);
+        res.status(500).json(err);
     }
 });
 
@@ -303,13 +234,6 @@ router.put("/hire/:jobId/:applicantSubdocId", auth, async (req, res) => {
 
         // Mark hired applicant's status
         applicantDoc.status = "hired";
-
-        // Reject everyone else
-        job.applicants.forEach(a => {
-            if (a._id.toString() !== req.params.applicantSubdocId && a.status !== "hired") {
-                a.status = "rejected";
-            }
-        });
 
         // Close the listing and record who was hired
         job.closed = true;

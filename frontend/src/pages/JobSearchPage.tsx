@@ -7,6 +7,9 @@ interface Job {
   title: string;
   description: string;
   company: string;
+  payRate?: string;
+  startDate?: string;
+  createdAt?: string;
   createdBy?: { firstname: string; lastname: string; email: string };
 }
 
@@ -15,6 +18,7 @@ const JobSearchPage: React.FC = () => {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
+  const [appliedIds, setAppliedIds] = useState<Set<string>>(new Set());
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -47,6 +51,32 @@ const JobSearchPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleApply = async (jobId: string) => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/users/jobs/apply/${jobId}`, {
+        method: "POST",
+        headers: { Authorization: token },
+      });
+      const data = await res.json();
+      if (!res.ok) { alert(data.message || "Error applying"); return; }
+      setAppliedIds((prev) => new Set(prev).add(jobId));
+      alert("Applied successfully!");
+    } catch {
+      alert("Error applying to job");
+    }
+  };
+
+  const fieldLabel: React.CSSProperties = {
+    fontWeight: 800,
+    fontSize: "0.72rem",
+    color: "#999",
+    textTransform: "uppercase",
+    letterSpacing: "0.06em",
+    marginBottom: "0.1rem",
   };
 
   return (
@@ -135,15 +165,8 @@ const JobSearchPage: React.FC = () => {
         }}
       >
         {/* Search Panel */}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "1rem",
-          }}
-        >
+        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
           <h1 style={{ fontSize: "2rem", margin: 0 }}>Search Jobs</h1>
-
           <div style={{ display: "flex", gap: "0.75rem" }}>
             <input
               value={searchTerm}
@@ -186,36 +209,111 @@ const JobSearchPage: React.FC = () => {
             gap: "1rem",
           }}
         >
-          <h2 style={{ color: "#333", margin: 0 }}>Results</h2>
+          <h2 style={{ color: "#333", margin: 0, fontSize: "1.4rem", fontWeight: 800 }}>Results</h2>
 
           {loading && <div>Loading...</div>}
 
           {!loading && jobs.length === 0 && (
-            <div>No jobs found. Try another search above.</div>
+            <div style={{ color: "#777" }}>No jobs found. Try another search above.</div>
           )}
 
-          {jobs.map((job) => (
-            <div
-              key={job._id}
-              style={{
-                border: "1px solid #ccc",
-                padding: "0.75rem",
-                borderRadius: "8px",
-                display: "flex",
-                flexDirection: "column",
-                gap: "0.25rem",
-              }}
-            >
-              <div style={{ fontWeight: 600, fontSize: "1.1rem" }}>{job.title}</div>
-              <div style={{ color: "#555" }}>{job.company}</div>
-              <div style={{ marginTop: "0.25rem" }}>{job.description}</div>
-              {job.createdBy && (
-                <div style={{ fontSize: "0.85rem", color: "#888" }}>
-                  Posted by: {job.createdBy.firstname} {job.createdBy.lastname}
+          {jobs.map((job) => {
+            const alreadyApplied = appliedIds.has(job._id);
+            return (
+              <div
+                key={job._id}
+                style={{
+                  border: "1px solid #ddd",
+                  padding: "1rem 1.1rem",
+                  borderRadius: "10px",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "0.6rem",
+                  backgroundColor: "rgba(250,250,255,0.9)",
+                }}
+              >
+                {/* Job Title */}
+                <div>
+                  <div style={fieldLabel}>Job Title</div>
+                  <div style={{ fontWeight: 700, fontSize: "1.1rem", color: "#111" }}>{job.title}</div>
                 </div>
-              )}
-            </div>
-          ))}
+
+                {/* Company */}
+                <div>
+                  <div style={fieldLabel}>Company Name</div>
+                  <div style={{ fontSize: "0.97rem", color: "#333" }}>{job.company}</div>
+                </div>
+
+                {/* Pay Rate */}
+                {job.payRate && (
+                  <div>
+                    <div style={fieldLabel}>Pay Rate</div>
+                    <div style={{ fontSize: "0.95rem", color: "#2e7d32", fontWeight: 600 }}>{job.payRate}</div>
+                  </div>
+                )}
+
+                {/* Start Date */}
+                {job.startDate && (
+                  <div>
+                    <div style={fieldLabel}>Start Date</div>
+                    <div style={{ fontSize: "0.93rem", color: "#444" }}>
+                      {new Date(job.startDate).toLocaleDateString()}
+                    </div>
+                  </div>
+                )}
+
+                {/* Description */}
+                {job.description && (
+                  <div>
+                    <div style={fieldLabel}>Job Description</div>
+                    <div style={{ fontSize: "0.92rem", color: "#444", lineHeight: 1.55 }}>{job.description}</div>
+                  </div>
+                )}
+
+                {/* Footer: posted info + apply button */}
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    paddingTop: "0.5rem",
+                    borderTop: "1px solid #eee",
+                    marginTop: "0.25rem",
+                  }}
+                >
+                  <div style={{ display: "flex", flexDirection: "column", gap: "0.1rem" }}>
+                    {job.createdBy && (
+                      <span style={{ fontSize: "0.8rem", color: "#aaa" }}>
+                        Posted by: {job.createdBy.firstname} {job.createdBy.lastname}
+                      </span>
+                    )}
+                    {job.createdAt && (
+                      <span style={{ fontSize: "0.78rem", color: "#bbb" }}>
+                        {new Date(job.createdAt).toLocaleDateString()}
+                      </span>
+                    )}
+                  </div>
+
+                  <button
+                    onClick={() => !alreadyApplied && handleApply(job._id)}
+                    disabled={alreadyApplied}
+                    style={{
+                      padding: "0.4rem 1.2rem",
+                      fontSize: "0.88rem",
+                      fontWeight: 600,
+                      cursor: alreadyApplied ? "default" : "pointer",
+                      border: "none",
+                      borderRadius: "8px",
+                      backgroundColor: alreadyApplied ? "#ccc" : "rgba(50, 30, 90, 0.75)",
+                      color: "white",
+                    }}
+                  >
+                    {alreadyApplied ? "Applied ✓" : "Apply Now"}
+                  </button>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
