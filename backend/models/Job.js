@@ -5,6 +5,7 @@ const jobSchema = new mongoose.Schema({
     description: String,
     company: String,
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    creationDate: { type: Date, default: Date.now },
 
     applicants: [
         {
