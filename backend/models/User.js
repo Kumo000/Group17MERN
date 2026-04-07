@@ -1,18 +1,16 @@
 const mongoose = require("mongoose");
 
-// Sub-schema for experience entries
 const experienceSchema = new mongoose.Schema({
   title: { type: String, required: true },
   startDate: { type: Date, required: true },
-  endDate: { type: Date }, // optional if user is still working there
+  endDate: { type: Date },
   description: { type: String },
 });
 
-// Sub-schema for degrees
 const degreeSchema = new mongoose.Schema({
   university: { type: String, required: true },
   degree: { type: String, required: true },
-  major: { type: String }, // optional
+  major: { type: String },
 });
 
 const userSchema = new mongoose.Schema({
@@ -26,13 +24,16 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ["Applicant", "Employer"],
   },
-  
-  experience: [experienceSchema],	
+
+  experience: [experienceSchema],
   degrees: [degreeSchema],
   skills: [String],
+
+  resumeUrl: { type: String }, // path to uploaded PDF resume
 
   isVerified: { type: Boolean, default: false },
   verificationToken: String,
 });
 
 module.exports = mongoose.model("User", userSchema);
+

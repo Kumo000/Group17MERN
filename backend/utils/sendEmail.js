@@ -5,7 +5,7 @@ console.log("SendGrid Key in sendEmail.js:", process.env.SENDGRID_API_KEY);
 sgMail.setApiKey(process.env.SENDGRID_API_KEY.trim());
 
 const sendVerificationEmail = async (toEmail, token) => {
-  const url = `http://miniapp4331.com/verify?token=${token}`;
+  const url = `https://miniapp4331.com/verify?token=${token}`;
 
   const msg = {
     to: toEmail,
