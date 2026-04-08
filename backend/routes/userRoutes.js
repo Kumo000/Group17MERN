@@ -9,7 +9,7 @@ const fs = require("fs");
 
 const User = require("../models/User");
 const Job = require("../models/Job");
-const sendVerificationEmail = require("../utils/sendEmail");
+const { sendVerificationEmail, sendResetPasswordEmail } = require("../utils/sendEmail");
 const auth = require("../middleware/auth");
 
 // ------------------------
@@ -199,6 +199,70 @@ router.get("/jobs/my-applications", auth, async (req, res) => {
     } catch (err) {
         console.error("GET APPLICATIONS ERROR:", err);
         res.status(500).json(err);
+    }
+});
+
+// ------------------------
+// FORGOT PASSWORD
+// ------------------------
+router.post("/forgot-password", async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(404).json({ message: "User with this email does not exist." });
+        }
+
+        const resetToken = crypto.randomBytes(20).toString("hex");
+
+        user.resetPasswordToken = resetToken;
+        user.resetPasswordExpires = Date.now() + 3600000; // How long the reset token lasts
+
+        await user.save();
+
+        await sendResetPasswordEmail(user.email, resetToken);
+
+        res.status(200).json({ message: "Password reset link sent to your email." });
+    } catch (error) {
+        console.error("Forgot Password Error:", error);
+        res.status(500).json({ message: "Server error during forgot password request." });
+    }
+});
+
+// ------------------------
+// RESET PASSWORD
+// ------------------------
+router.post("/reset-password/:token", async (req, res) => {
+    try {
+        const { token } = req.params;
+        const { password } = req.body;
+
+        // Find user with matching token and token that hasn't expired yet  
+        const user = await User.findOne({
+            resetPasswordToken: token,
+            resetPasswordExpires: { $gt: Date.now() },
+        });
+
+        if (!user) {
+            return res.status(400).json({ message: "Password reset token is invalid or has expired." });
+        }
+
+        // Hash the new password  
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(password, salt);
+
+        // Clear fields so the token can't be used again  
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
+
+        await user.save();
+
+        res.status(200).json({ message: "Password has been successfully reset. You can now log in." });
+    } catch (error) {
+        console.error("Reset Password Error:", error);
+        res.status(500).json({ message: "Server error during password reset." });
     }
 });
 
