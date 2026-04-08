@@ -7,7 +7,6 @@ jest.mock("jsonwebtoken");
 describe("Auth Middleware Unit Tests", () => {
     let req, res, next;
 
-    // Reset mock objext
     beforeEach(() => {
         req = {
             header: jest.fn(),

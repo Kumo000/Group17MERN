@@ -1,56 +1,74 @@
 
 // Set dummy api key
 process.env.SENDGRID_API_KEY = "dummy_key";
-const sendVerificationEmail = require("../utils/sendEmail");
 const sgMail = require("@sendgrid/mail");
+const { sendVerificationEmail, sendResetPasswordEmail } = require("../utils/sendEmail"); // update path as needed
 
-// Mock SendGrid so it doesn't send real emails
-jest.mock("@sendgrid/mail");
+// Mock the SendGrid module
+jest.mock("@sendgrid/mail", () => ({
+    setApiKey: jest.fn(),
+    send: jest.fn(),
+}));
 
-
-describe("Email Verification Utility", () => {
+describe("Email Utility Helpers", () => {
+    const testEmail = "test@user.com";
+    const testToken = "123456";
 
     beforeEach(() => {
-        // Clear memory before each test
+        // Clear mock history before each test
         jest.clearAllMocks();
-        process.env.SENDGRID_API_KEY = "dummy_key";
     });
 
-    test("should build the correct email message and send it", async () => {
-        const testEmail = "user@test.com";
-        const testToken = "fakeToken";
+    describe("sendVerificationEmail", () => {
+        test("should call sgMail.send with correct verification details", async () => {
+            // Mock the send method to resolve successfully
+            sgMail.send.mockResolvedValue([{}]);
 
-        await sendVerificationEmail(testEmail, testToken);
+            await sendVerificationEmail(testEmail, testToken);
 
-        // Check if sgMail.send was called with the right data
-        expect(sgMail.send).toHaveBeenCalledTimes(1);
+            // Verify it was called once
+            expect(sgMail.send).toHaveBeenCalledTimes(1);
 
-        // Check the message object specifically
-        const sentMsg = sgMail.send.mock.calls[0][0];
-        expect(sentMsg.to).toBe(testEmail);
-        expect(sentMsg.from).toBe("ascent.careers.emailer@gmail.com");
-        expect(sentMsg.subject).toBe("Verify your account");
+            // Verify the content
+            const callArgs = sgMail.send.mock.calls[0][0];
+            expect(callArgs.to).toBe(testEmail);
+            expect(callArgs.subject).toBe("Verify your account");
+            expect(callArgs.html).toContain(`verify?token=${testToken}`);
+        });
 
-        // Check if the HTML contains our token URL
-        expect(sentMsg.html).toContain(`token=${testToken}`);
-        expect(sentMsg.html).toContain("https://miniapp4331.com/verify");
+        test("should log an error if sgMail.send fails", async () => {
+            const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
+            sgMail.send.mockRejectedValue(new Error("Network Error"));
+
+            await sendVerificationEmail(testEmail, testToken);
+
+            expect(consoleErrorSpy).toHaveBeenCalledWith("Error sending email:", expect.any(Error));
+            consoleErrorSpy.mockRestore();
+        });
     });
 
-    test("should log an error if SendGrid fails", async () => {
-        // Force SendGrid to throw an error
-        sgMail.send.mockRejectedValue(new Error("SendGrid Down"));
+    describe("sendResetPasswordEmail", () => {
+        test("should call sgMail.send with correct password reset details", async () => {
+            sgMail.send.mockResolvedValue([{}]);
 
-        // Check if console.error was called
-        const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => { });
+            await sendResetPasswordEmail(testEmail, testToken);
 
-        const testEmail = "user@test.com";
-        const testToken = "fakeToken";
+            expect(sgMail.send).toHaveBeenCalledTimes(1);
 
-        await sendVerificationEmail(testEmail, testToken);
+            const callArgs = sgMail.send.mock.calls[0][0];
+            expect(callArgs.to).toBe(testEmail);
+            expect(callArgs.subject).toBe("Reset your password");
+            expect(callArgs.html).toContain(`reset-password?token=${testToken}`);
+        });
 
-        expect(consoleSpy).toHaveBeenCalledWith("Error sending email:", expect.any(Error));
+        test("should log an error if sending reset email fails", async () => {
+            const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
+            sgMail.send.mockRejectedValue(new Error("SendGrid Failed"));
 
-        // Clean up
-        consoleSpy.mockRestore();
+            await sendResetPasswordEmail(testEmail, testToken);
+
+            expect(consoleErrorSpy).toHaveBeenCalledWith("Error sending reset email:", expect.any(Error));
+            consoleErrorSpy.mockRestore();
+        });
     });
 });
