@@ -4,52 +4,73 @@ import { useNavigate } from "react-router-dom";
 const Login: React.FC = () => {
   const navigate = useNavigate();
 
-  // State for text fields
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState<Record<string, boolean>>({});
+
+  const validate = () => {
+    const newErrors: Record<string, boolean> = {
+      email: !email.trim(),
+      password: !password.trim(),
+    };
+    setErrors(newErrors);
+    return !Object.values(newErrors).some(Boolean);
+  };
+
+  const clearError = (field: string) => {
+    if (errors[field]) setErrors((prev) => ({ ...prev, [field]: false }));
+  };
 
   const handleLogin = async () => {
-  try {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/users/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password }),
-    });
+    if (!validate()) return;
 
-    const data = await response.json(); // parse JSON directly
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/users/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
-    if (!response.ok) {
-      alert("Login failed: " + data.message);
-      return;
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert("Login failed: " + data.message);
+        return;
+      }
+
+      console.log("Login successful:", data.user);
+
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      const token = data.token;
+      const meRes = await fetch(`${import.meta.env.VITE_API_URL}/api/users/me`, {
+        headers: { Authorization: token },
+      });
+      const meData = await meRes.json();
+      localStorage.setItem("user", JSON.stringify(meData));
+
+      if (meData.role === "Employer") {
+        navigate("/employerProfile");
+      } else {
+        navigate("/applicantProfile");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      alert("An error occurred. Please try again later.");
     }
+  };
 
-    console.log("Login successful:", data.user);
-
-    // Save token & initial user info
-    localStorage.setItem("token", data.token);
-    localStorage.setItem("user", JSON.stringify(data.user));
-
-    // Optional: fetch latest user info from /me
-    const token = data.token;
-    const meRes = await fetch(`${import.meta.env.VITE_API_URL}/api/users/me`, {
-      headers: { Authorization: token },
-    });
-    const meData = await meRes.json();
-    localStorage.setItem("user", JSON.stringify(meData));
-
-    // Redirect based on role
-    if (meData.role === "Employer") {
-      navigate("/employerProfile");
-    } else {
-      navigate("/applicantProfile");
-    } 
-  } catch (error) {
-    console.error("Login error:", error);
-    alert("An error occurred. Please try again later.");
-  }
-};
+  const inputStyle = (field: string): React.CSSProperties => ({
+    padding: "0.6rem 1rem",
+    fontSize: "1rem",
+    borderRadius: "8px",
+    border: errors[field] ? "2px solid #e53935" : "1px solid #ccc",
+    width: "250px",
+    backgroundColor: errors[field] ? "#fff5f5" : "white",
+    outline: "none",
+    transition: "border 0.15s",
+  });
 
   return (
     <div
@@ -82,26 +103,10 @@ const Login: React.FC = () => {
         }}
       />
 
-      <h1
-        style={{
-          fontSize: "4rem",
-          marginBottom: "2rem",
-          textAlign: "center",
-          letterSpacing: "0.6em",
-          width: "100%",
-        }}
-      >
+      <h1 style={{ fontSize: "4rem", marginBottom: "2rem", textAlign: "center", letterSpacing: "0.6em", width: "100%" }}>
         ASCENT
       </h1>
-      <h1
-        style={{
-          fontSize: "1rem",
-          marginBottom: "4rem",
-          textAlign: "center",
-          letterSpacing: "0.2em",
-          width: "100%",
-        }}
-      >
+      <h1 style={{ fontSize: "1rem", marginBottom: "4rem", textAlign: "center", letterSpacing: "0.2em", width: "100%" }}>
         climb the ladder. reach your career potential.
       </h1>
 
@@ -113,40 +118,34 @@ const Login: React.FC = () => {
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          gap: "1.5rem",
+          gap: "1rem",
           width: "max-content",
           textAlign: "center",
         }}
       >
-        {/* Email / Username field */}
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          style={{
-            padding: "0.6rem 1rem",
-            fontSize: "1rem",
-            borderRadius: "8px",
-            border: "1px solid #ccc",
-            width: "250px",
-          }}
-        />
+        {/* Email */}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "0.2rem", marginBottom: "0.5rem" }}>
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => { setEmail(e.target.value); clearError("email"); }}
+            style={inputStyle("email")}
+          />
+          {errors.email && <span style={{ color: "#e53935", fontSize: "0.75rem", paddingLeft: "0.25rem" }}>Email is required</span>}
+        </div>
 
-        {/* Password field */}
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          style={{
-            padding: "0.6rem 1rem",
-            fontSize: "1rem",
-            borderRadius: "8px",
-            border: "1px solid #ccc",
-            width: "250px",
-          }}
-        />
+        {/* Password */}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "0.2rem", marginBottom: "0.5rem" }}>
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => { setPassword(e.target.value); clearError("password"); }}
+            style={inputStyle("password")}
+          />
+          {errors.password && <span style={{ color: "#e53935", fontSize: "0.75rem", paddingLeft: "0.25rem" }}>Password is required</span>}
+        </div>
 
         {/* Login button */}
         <button
@@ -160,23 +159,16 @@ const Login: React.FC = () => {
             borderRadius: "8px",
             backgroundColor: "rgba(50, 30, 90, 0.6)",
             color: "black",
+            marginTop: "0.5rem",
           }}
         >
           Login
         </button>
-        <h1
-          style={{
-            fontSize: "0.8rem",
-            marginBottom: "0rem",
-            textAlign: "center",
-            letterSpacing: "0.2em",
-            width: "100%",
-          }}
-        >
+
+        <h1 style={{ fontSize: "0.8rem", marginBottom: "0rem", textAlign: "center", letterSpacing: "0.2em", width: "100%" }}>
           Don't have an account?
         </h1>
 
-        {/* Sign Up button */}
         <button
           onClick={() => navigate("/signup")}
           style={{
@@ -194,7 +186,6 @@ const Login: React.FC = () => {
         </button>
       </div>
 
-      {/* Ken Burns animation keyframes */}
       <style>
         {`
           @keyframes kenBurns {
@@ -211,3 +202,4 @@ const Login: React.FC = () => {
 };
 
 export default Login;
+
