@@ -106,7 +106,7 @@ const Login: React.FC = () => {
       <h1 style={{ fontSize: "4rem", marginBottom: "2rem", textAlign: "center", letterSpacing: "0.6em", width: "100%" }}>
         ASCENT
       </h1>
-      <h1 style={{ fontSize: "1rem", marginBottom: "4rem", textAlign: "center", letterSpacing: "0.2em", width: "100%" }}>
+      <h1 style={{ fontSize: "1rem", marginBottom: "1rem", textAlign: "center", letterSpacing: "0.2em", width: "100%" }}>
         climb the ladder. reach your career potential.
       </h1>
 
@@ -183,6 +183,26 @@ const Login: React.FC = () => {
           }}
         >
           Sign Up
+        </button>
+
+        <h1 style={{ fontSize: "0.8rem", marginBottom: "0rem", textAlign: "center", letterSpacing: "0.2em", width: "100%" }}>
+          Forgot password?
+        </h1>
+
+        <button
+          onClick={() => navigate("/forgotPassword")}
+          style={{
+            padding: "0.6rem 2rem",
+            fontSize: "1.2rem",
+            fontWeight: 500,
+            cursor: "pointer",
+            border: "none",
+            borderRadius: "8px",
+            backgroundColor: "rgba(50, 30, 90, 0.6)",
+            color: "black",
+          }}
+        >
+          Forgot Password
         </button>
       </div>
 

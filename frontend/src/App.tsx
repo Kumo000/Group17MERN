@@ -6,6 +6,8 @@ import ProfilePage from "./pages/ProfilePage";
 import JobSearchPage from "./pages/JobSearchPage";
 import EmployerProfile from "./pages/EmployerProfile";
 import ApplicantProfile from "./pages/ApplicantProfile";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 function App() {
   return (
@@ -16,8 +18,10 @@ function App() {
         <Route path="/verify" element={<Verify />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/jobs" element={<JobSearchPage />} />
-	<Route path="/employerProfile" element={<EmployerProfile />} />
-	<Route path="/applicantProfile" element={<ApplicantProfile />} />
+        <Route path="/forgotPassword" element={<ForgotPassword />} />
+        <Route path="/employerProfile" element={<EmployerProfile />} />
+        <Route path="/applicantProfile" element={<ApplicantProfile />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
       </Routes>
     </Router>
   );
