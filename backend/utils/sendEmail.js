@@ -5,7 +5,7 @@ console.log("SendGrid Key in sendEmail.js:", process.env.SENDGRID_API_KEY);
 sgMail.setApiKey(process.env.SENDGRID_API_KEY.trim());
 
 const sendVerificationEmail = async (toEmail, token) => {
-  const url = `http://miniapp4331.com/verify?token=${token}`;
+  const url = `https://miniapp4331.com/verify?token=${token}`;
 
   const msg = {
     to: toEmail,
@@ -26,4 +26,27 @@ const sendVerificationEmail = async (toEmail, token) => {
   }
 };
 
-module.exports = sendVerificationEmail;
+const sendResetPasswordEmail = async (toEmail, token) => {
+  const url = `https://miniapp4331.com/reset-password?token=${token}`;
+
+  const msg = {
+    to: toEmail,
+    from: "ascent.careers.emailer@gmail.com",
+    subject: "Reset your password",
+    html: `
+      <h2>Password Reset Request</h2>
+      <p>Click the link below to reset your password. This link will expire in 1 hour.</p>
+      <a href="${url}">${url}</a>
+      <p>If you did not request this, please ignore this email.</p>
+    `,
+  };
+
+  try {
+    await sgMail.send(msg);
+    console.log("Password reset email sent to", toEmail);
+  } catch (error) {
+    console.error("Error sending reset email:", error);
+  }
+};
+
+module.exports = { sendVerificationEmail, sendResetPasswordEmail };

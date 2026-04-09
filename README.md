@@ -9,10 +9,15 @@ Employers: Can view applicant information.
 It's simple, user friendly, and makes managing job applications easier for both sides of the hiring process.
 
 ------------------------ FRONTEND ------------------------
-- Frontend : Vite React App using Typescript.
+- Frontend : React App using Typescript.
 - In addition to defeault React files, our frontend is comprised of pages (/pages) and components (/components) that make up our easy to use, appealing UI/UX.
 - Our frontend connects to our backend node server at localhost:5001 to access our API's and MongoDB database.
 
 ------------------------ BACKEND ------------------------
-- Utilize email verification (tokens) when users attempt to sign up. Once verified, users can login to their account.
+- Backend is based on a Node server.(server.js sets up our backend and connects to our mongo DB database)
+- MONGO DB SCHEMAS: We have two schemas/templates to store entires into our database- Users and Jobs. Each contains necessary fields.
+- Utilize email verification tokens (via Send Grid) when users attempt to sign up AND reset their password. Once verified, users can login to their account/reset their password.
+- Uses JWT tokens for user authentication
+- /routes contains all of the API endpoints used to access the database.
+  
 
