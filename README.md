@@ -21,7 +21,7 @@ It's simple, user friendly, and makes managing job applications easier for both 
 - /routes contains all of the API endpoints used to access the database.
 
 
------------------------- AI Assistance Disclosure ------------------------
+------------------------ AI Assistance Disclosure ------------------------                                       
 This project was developed with assistance from the following generative AI tools:
 
 - TOOL: ChatGPT-5
