@@ -50,12 +50,14 @@ router.delete("/deleteJob/:id", auth, async (req, res) => {
 // ------------------------
 router.post("/searchJobs", auth, async (req, res) => {
     try {
-        const { title, description, company } = req.body;
+        const { query } = req.body;
 
         const filter = {
-            title: { $regex: title, $options: "i" },
-            description: { $regex: description, $options: "i" },
-            company: { $regex: company, $options: "i" },
+            $or: [
+                {title: { $regex: query, $options: "i" }},
+                {description: { $regex: query, $options: "i" }},
+                {company: { $regex: query, $options: "i" }}
+            ],
             closed: { $ne: true }, // exclude closed listings from search
         };
 
