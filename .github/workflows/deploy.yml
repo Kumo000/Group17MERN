@@ -1,0 +1,39 @@
+name: Deploy Frontend and Backend
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    if: github.actor != 'rms543221'  # Ignore pushes from the droplet
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_SSH_KEY }}
+
+      - name: Deploy frontend and backend
+        run: |
+          ssh -o StrictHostKeyChecking=no root@143.198.6.35 << 'EOF'
+            cd ~/Group17MERN
+
+            # Pull only the frontend
+            cd frontend
+            git pull origin main
+            npm install
+            npm run build
+            cd ..
+
+            # Pull only the backend
+            cd backend
+            git pull origin main
+            npm install
+            pm2 restart job-portal
+          EOF
