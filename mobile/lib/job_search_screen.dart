@@ -87,9 +87,7 @@ class _JobSearchScreenState extends State<JobSearchScreen> {
 
     try {
       final res = await authPost("/api/jobs/searchJobs", {
-        "title": _searchController.text,
-        "description": "",
-        "company": "",
+        "query": _searchController.text.trim(),
       });
 
       if (res.statusCode == 200) {
