@@ -94,7 +94,7 @@ const Login: React.FC = () => {
           left: 0,
           height: "100%",
           width: "100%",
-          backgroundImage: `url(/mountain2.webp)`,
+          backgroundImage: `url(/mountain3.webp)`,
           backgroundSize: "cover",
           backgroundPosition: "center center",
           backgroundRepeat: "no-repeat",
