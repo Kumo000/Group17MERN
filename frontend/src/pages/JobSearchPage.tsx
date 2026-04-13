@@ -327,6 +327,11 @@ const JobSearchPage: React.FC = () => {
             75% { transform: scale(1.05) translate(-1%, 1%); }
             100% { transform: scale(1) translate(0, 0); }
           }
+
+          @media (max-width: 768px) {
+            animation: none;
+          }
+
         `}
       </style>
     </div>
