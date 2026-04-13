@@ -96,13 +96,14 @@ const JobSearchPage: React.FC = () => {
     >
       {/* Background */}
       <div
+        className="bg-animated"
         style={{
           position: "absolute",
           top: 0,
           left: 0,
           height: "100%",
           width: "100%",
-          backgroundImage: `url(/mountain2.webp)`,
+          backgroundImage: `url(/mountain3.webp)`,
           backgroundSize: "cover",
           backgroundPosition: "center center",
           backgroundRepeat: "no-repeat",
@@ -327,6 +328,13 @@ const JobSearchPage: React.FC = () => {
             75% { transform: scale(1.05) translate(-1%, 1%); }
             100% { transform: scale(1) translate(0, 0); }
           }
+
+          @media (max-width: 768px) {
+          .bg-animated {
+            animation: none !important;
+            }
+          }
+
         `}
       </style>
     </div>
