@@ -189,7 +189,7 @@ const ApplicantProfile: React.FC = () => {
       <div
         role="presentation"
         aria-hidden="true"
-        style={{ position: "absolute", top: 0, left: 0, height: "100%", width: "100%", backgroundImage: `url(/mountain.jpg)`, backgroundSize: "cover", backgroundPosition: "center center", backgroundRepeat: "no-repeat", zIndex: -1, animation: "kenBurns 35s ease-in-out infinite" }}
+        style={{ position: "absolute", top: 0, left: 0, height: "100%", width: "100%", backgroundImage: `url(/mountain3.webp)`, backgroundSize: "cover", backgroundPosition: "center center", backgroundRepeat: "no-repeat", zIndex: -1, animation: "kenBurns 35s ease-in-out infinite" }}
       />
 
       {/* Header */}
