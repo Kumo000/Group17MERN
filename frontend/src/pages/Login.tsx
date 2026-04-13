@@ -157,8 +157,8 @@ const Login: React.FC = () => {
             cursor: "pointer",
             border: "none",
             borderRadius: "8px",
-            backgroundColor: "rgba(50, 30, 90, 0.6)",
-            color: "black",
+            backgroundColor: "rgba(50, 30, 90, 0.7)",
+            color: "white",
             marginTop: "0.5rem",
           }}
         >
@@ -178,8 +178,8 @@ const Login: React.FC = () => {
             cursor: "pointer",
             border: "none",
             borderRadius: "8px",
-            backgroundColor: "rgba(50, 30, 90, 0.6)",
-            color: "black",
+            backgroundColor: "rgba(50, 30, 90, 0.7)",
+            color: "white",
           }}
         >
           Sign Up
@@ -198,8 +198,8 @@ const Login: React.FC = () => {
             cursor: "pointer",
             border: "none",
             borderRadius: "8px",
-            backgroundColor: "rgba(50, 30, 90, 0.6)",
-            color: "black",
+            backgroundColor: "rgba(50, 30, 90, 0.7)",
+            color: "white",
           }}
         >
           Forgot Password

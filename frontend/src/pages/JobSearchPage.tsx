@@ -38,7 +38,7 @@ const JobSearchPage: React.FC = () => {
           "Content-Type": "application/json",
           Authorization: token!,
         },
-        body: JSON.stringify({ title: searchTerm, description: "", company: "" }),
+        body: JSON.stringify({ query: searchTerm }),
       });
 
       if (!res.ok) throw new Error("Search failed");
@@ -102,7 +102,7 @@ const JobSearchPage: React.FC = () => {
           left: 0,
           height: "100%",
           width: "100%",
-          backgroundImage: `url(/mountain.jpg)`,
+          backgroundImage: `url(/mountain2.webp)`,
           backgroundSize: "cover",
           backgroundPosition: "center center",
           backgroundRepeat: "no-repeat",
@@ -131,7 +131,7 @@ const JobSearchPage: React.FC = () => {
             cursor: "pointer",
             border: "none",
             borderRadius: "8px",
-            backgroundColor: "rgba(50, 30, 90, 0.7)",
+            backgroundColor: "rgba(50, 30, 90, 0.8)",
             color: "white",
           }}
         >
@@ -146,7 +146,7 @@ const JobSearchPage: React.FC = () => {
             cursor: "pointer",
             border: "none",
             borderRadius: "8px",
-            backgroundColor: "rgba(50, 30, 90, 0.7)",
+            backgroundColor: "rgba(50, 30, 90, 0.8)",
             color: "white",
           }}
         >
@@ -189,7 +189,7 @@ const JobSearchPage: React.FC = () => {
                 cursor: "pointer",
                 border: "none",
                 borderRadius: "8px",
-                backgroundColor: "rgba(50, 30, 90, 0.7)",
+                backgroundColor: "rgba(50, 30, 90, 0.8)",
                 color: "white",
               }}
             >
@@ -214,7 +214,7 @@ const JobSearchPage: React.FC = () => {
           {loading && <div>Loading...</div>}
 
           {!loading && jobs.length === 0 && (
-            <div style={{ color: "#777" }}>No jobs found. Try another search above.</div>
+            <div style={{ color: "#474646" }}>No jobs found. Try another search above.</div>
           )}
 
           {jobs.map((job) => {
