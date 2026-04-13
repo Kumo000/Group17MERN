@@ -96,6 +96,7 @@ const JobSearchPage: React.FC = () => {
     >
       {/* Background */}
       <div
+        className="bg-animated"
         style={{
           position: "absolute",
           top: 0,
@@ -329,7 +330,9 @@ const JobSearchPage: React.FC = () => {
           }
 
           @media (max-width: 768px) {
-            animation: none;
+          .bg-animated {
+            animation: none !important;
+            }
           }
 
         `}
