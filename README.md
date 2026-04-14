@@ -20,6 +20,13 @@ It's simple, user friendly, and makes managing job applications easier for both 
 - Uses JWT tokens for user authentication
 - /routes contains all of the API endpoints used to access the database.
 
+------------------------ MOBILE --------------------------
+- Mobile App built with Flutter (Dart)
+- Implements the same core functionality of our web application
+- UI was adapted to be more optimized for mobile, adding role-based bottom navigation to easily switch between screens
+  - Applicants : Profile page, Search jobs, My applications
+  - Employers : Profile page, Active listings, Past listings 
+- Utilizes the same backend API as our web app for real-time data
 
 ------------------------ AI Assistance Disclosure ------------------------                                       
 This project was developed with assistance from the following generative AI tools:
